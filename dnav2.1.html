@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+</head>
+<body onload="main();" bgcolor="grey">
+	<canvas id="canvas" width="1200" height="800"></canvas>
+
+	<script type="application/javascript">
+
+		
+		var canvas = document.getElementById("canvas");
+     	var ctx = canvas.getContext("2d");
+
+     	var NUMBER_OF_PARTICLES = 40;
+     	var DISTANCE = 15; //distance between particles 
+     	var particles = [];
+     	var xChange = 10;
+     	var yChange = 5;
+     	var radChange = 1.03; //on each step +/-3% to radius size
+ 		var A_ROTARION_X = 200;  //x - rotation radius
+		var B_ROTATION_Y = 50; //y - rotation radius
+		var INIT_RADIUS = 15;
+		var width = 1200;
+		var height =800;
+		
+
+     	function setX(x, y, y0){
+     		
+     		if (y < y0)
+        		return x += xChange;
+
+			if (y > y0) 
+        		return x -= xChange;
+
+        	if (y == y0)
+        		return x;
+     	}
+
+     	function setY(y, x, x0){
+     		if (x < x0)
+        		return y -= yChange;
+
+			if (x > x0) 
+        		return y += yChange;
+
+        	if (x == x0)
+        		return y;
+
+     		//return Math.sqrt((1 - (x * x) / (a * a)) * b * b) + i * DISTANCE;
+     	}
+        
+        function setRadius(y,y0, radius){
+        	
+
+        	if (y < y0)
+        		return radius * radChange;
+
+			if (y > y0) 
+        		return radius / radChange;
+
+        	if (y == y0)
+        		return radius;
+
+        }
+
+
+        
+		function Particle(){
+			this.x0 = 0;
+			this.y0 = 0;
+			this.a = A_ROTARION_X;  //x - rotation radius
+			this.b = B_ROTATION_Y; //y - rotation radius
+			this.x = 0;	//current x
+			this.y = 0; //current y
+			this.radius = INIT_RADIUS; //partile radius
+
+			this.color = 'rgba(0,0,0,0.8';
+		}
+
+
+		function initaParticle(){
+			//create array
+			for (var i=0; i<NUMBER_OF_PARTICLES; i++){
+				particles.push (new Particle);
+			}
+
+			//set initial values of particles
+			for (var i=0; i<NUMBER_OF_PARTICLES; i = i +2){
+				var temp = particles[i];
+				var temp2 = particles [i + 1];
+				temp.x = width / 2;  
+				temp2.x = width / 2;  
+				temp.y = DISTANCE*3 + i * DISTANCE;
+				temp2.y = DISTANCE*3 + i * DISTANCE - B_ROTATION_Y;
+				temp.x0 = width / 2;
+				temp.y0 = temp.y - B_ROTATION_Y / 2;
+				temp2.x0 = width / 2;
+				temp2.y0 = temp.y - B_ROTATION_Y / 2; 
+				temp.radius = INIT_RADIUS;
+				temp2.radius = INIT_RADIUS;
+				temp.color = 'rgba(0,0,0,0.8';
+				temp2.color = 'rgba(100,0,255 ,0.8';	
+			}
+
+			// move each particle a little bit from previose one 
+			for (var i = 0; i < NUMBER_OF_PARTICLES; i++){
+				for (var j = 0; j<=i; j++){
+					move1Particle(particles[i]);
+				}
+			}
+		}
+
+
+		function drawParticles(){
+				for (var i = 0; i < NUMBER_OF_PARTICLES; i++){
+					//console.log( "ready  test!" );
+					var temp1 = particles[i];
+					var temp2 = particles[i + 1];
+					ctx.beginPath();
+				    ctx.arc(temp1.x, temp1.y, temp1.radius, 0, Math.PI*2, true);
+				    ctx.fillStyle = temp1.color;
+				    ctx.fill();
+				    ctx.globalCompositeOperation = 'lighter';
+				    ctx.closePath();
+
+
+				    if (i % 2 == 0){
+				    	ctx.beginPath();
+						ctx.moveTo(temp1.x, temp1.y);
+						ctx.lineTo(temp2.x, temp2.y);
+						ctx.strokeStyle = 'rgba(0,250,0,0.4'
+						ctx.stroke();
+						ctx.lineWidth = 3;
+						ctx.closePath;
+
+					}
+				}
+		}
+
+
+		function moveParticles(){
+			for (var i = 0; i < NUMBER_OF_PARTICLES; i++){
+				move1Particle (particles[i]);
+			}
+		}
+
+
+		function move1Particle(temp){
+			temp.x = setX(temp.x, temp.y, temp.y0);
+			temp.y = setY(temp.y, temp.x, temp.x0);
+			temp.radius = setRadius(temp.y, temp.y0, temp.radius);
+		}
+
+
+		function main(){
+			initaParticle();
+
+			setInterval(function() {
+				ctx.clearRect(0, 0, width, height);
+				drawParticles();
+				moveParticles();
+			}, 100)
+		
+		}
+
+
+		
+
+	</script>
+</body>
+</html>
